@@ -1,0 +1,6 @@
+{
+  "name": "proximos-passos",
+  "version": "0.1.0",
+  "description": "Depois de cada resposta, mostra 3 próximos passos como botões acima do prompt; um clique manda o pedido.",
+  "types": "./types/index.d.ts"
+}

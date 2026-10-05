@@ -1,0 +1,6 @@
+{
+  "name": "cofre-env",
+  "version": "0.1.0",
+  "description": "A IA não lê mais os .env (vê só o nome das chaves e se estão vazias); o usuário ganha o link do arquivo na tela para preencher",
+  "types": "./types/index.d.ts"
+}

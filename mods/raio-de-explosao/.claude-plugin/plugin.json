@@ -1,0 +1,5 @@
+{
+  "name": "raio-de-explosao",
+  "version": "0.1.0",
+  "description": "Antes de o Claude apagar arquivos (rm / Remove-Item), mostra quantos arquivos vão embora e oferece mandar para a lixeira."
+}

@@ -1,0 +1,5 @@
+{
+  "name": "glossario-fala",
+  "version": "0.1.0",
+  "description": "Corrige no pedido os nomes que o ditado erra (cloud code → Claude Code, supa base → Supabase) antes de chegar na IA"
+}

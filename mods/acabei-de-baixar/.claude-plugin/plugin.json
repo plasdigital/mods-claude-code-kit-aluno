@@ -1,0 +1,5 @@
+{
+  "name": "acabei-de-baixar",
+  "version": "0.1.0",
+  "description": "Quando o pedido fala em baixar/gerar um arquivo, anexa os arquivos novos de Downloads ao pedido, com caminho completo"
+}

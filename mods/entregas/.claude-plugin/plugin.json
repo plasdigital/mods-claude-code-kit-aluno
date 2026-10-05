@@ -1,0 +1,6 @@
+{
+  "name": "entregas",
+  "version": "0.1.0",
+  "description": "Guarda todo arquivo que a IA cria ou edita, em qualquer conversa: /entregas lista com link, e um \"cadê\" já chega respondido",
+  "types": "./types/index.d.ts"
+}

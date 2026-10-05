@@ -1,0 +1,5 @@
+# tipos gerados pelo Claude Code ao mexer num mod (565 KB cada, se refazem sozinhos)
+.claude-plugin/types/
+node_modules/
+.env
+.env.local

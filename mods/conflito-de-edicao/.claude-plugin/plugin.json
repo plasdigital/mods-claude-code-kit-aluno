@@ -1,0 +1,5 @@
+{
+  "name": "conflito-de-edicao",
+  "version": "0.1.0",
+  "description": "Avisa antes de editar um arquivo que foi alterado há pouco em outra conversa ou fora do Claude (IDE)."
+}

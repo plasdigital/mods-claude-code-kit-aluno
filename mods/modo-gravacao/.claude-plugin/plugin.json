@@ -1,0 +1,6 @@
+{
+  "name": "modo-gravacao",
+  "version": "0.1.0",
+  "description": "/gravar liga e desliga: borra na tela e-mails, telefones, CPF/CNPJ, chaves, tokens e termos da sua lista, sem mudar o que o Claude lê.",
+  "types": "./types/index.d.ts"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "painel-de-obra",
+  "version": "0.1.0",
+  "description": "Painel ao lado que mostra, ao vivo, o que o Claude está fazendo: arquivos lidos, editados, criados e comandos rodados.",
+  "types": "./types/index.d.ts"
+}

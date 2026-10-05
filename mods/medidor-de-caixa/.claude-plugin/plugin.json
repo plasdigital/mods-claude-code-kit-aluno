@@ -1,0 +1,6 @@
+{
+  "name": "medidor-de-caixa",
+  "version": "0.1.0",
+  "description": "Faixa acima do prompt com quanto a conversa custaria na API, quanto custou o último pedido e quanto do contexto já foi usado.",
+  "types": "./types/index.d.ts"
+}

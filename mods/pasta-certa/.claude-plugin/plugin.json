@@ -1,0 +1,5 @@
+{
+  "name": "pasta-certa",
+  "version": "0.1.0",
+  "description": "Mostra em qual cliente a conversa está e pergunta antes de seguir um pedido que fala de outro cliente."
+}

@@ -1,0 +1,54 @@
+{
+  "_leia": "Cada troca: 'de' é uma expressão regular (sem maiúscula/minúscula, só palavra inteira), 'para' o nome certo. Só entra em 'trocas' o que NÃO é palavra comum do português — o mod troca sozinho. O que pode ser palavra comum vai em 'sugestoes': o mod só avisa a IA, não troca. Acrescente aqui os nomes dos seus clientes e das ferramentas que o ditado erra.",
+  "trocas": [
+    {
+      "de": "chat ?wood|chat ?root|chatwod|chatuti",
+      "para": "Chatwoot"
+    },
+    {
+      "de": "hype ?frames?|hyper ?frame|hipe ?frames?|haiper ?frames?",
+      "para": "HyperFrames"
+    },
+    {
+      "de": "u ?azap[ie]?|wazapi|uasapi|uazap",
+      "para": "Uazapi"
+    },
+    {
+      "de": "supa ?beis|supa base|supabeise",
+      "para": "Supabase"
+    },
+    {
+      "de": "n oito n|ene oito ene|nhe oito nhe",
+      "para": "n8n"
+    },
+    {
+      "de": "cloud code|clóde code|claude cod",
+      "para": "Claude Code"
+    },
+    {
+      "de": "env local|envy local|ênvi local",
+      "para": ".env.local"
+    },
+    {
+      "de": "hostinguer|rostinger",
+      "para": "Hostinger"
+    }
+  ],
+  "sugestoes": [
+    {
+      "de": "chat útil|chat util",
+      "para": "Chatwoot",
+      "porque": "'chat útil' pode ser expressão comum"
+    },
+    {
+      "de": "envy",
+      "para": ".env",
+      "porque": "palavra em inglês"
+    },
+    {
+      "de": "rios",
+      "para": "Reels",
+      "porque": "'rios' é palavra comum"
+    }
+  ]
+}
