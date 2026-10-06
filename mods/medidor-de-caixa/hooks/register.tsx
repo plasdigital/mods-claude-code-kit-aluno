@@ -5,6 +5,8 @@ import type { Leitura } from '../types'
 
 const leitura = atom({ plugin: 'medidor-de-caixa', key: 'leitura' } as const, null)
 const tique = atom({ plugin: 'medidor-de-caixa', key: 'tique' } as const, 0)
+// /sem-cache desliga o relógio e o aviso do cache nesta conversa; /com-cache religa.
+const cacheLigado = atom({ plugin: 'medidor-de-caixa', key: 'cacheLigado' } as const, true)
 
 // O cache da conversa vale 1 hora depois da última resposta; passou disso, o próximo
 // pedido paga a conversa inteira de novo.
@@ -36,13 +38,15 @@ export const register: Register = on => {
 
   on('session.start', async ($, e, next) => {
     const r = await next(e)
+    await $.command.register({ name: 'sem-cache', description: 'Esconde o relógio e o aviso do cache nesta conversa', immediate: true })
+    await $.command.register({ name: 'com-cache', description: 'Volta a mostrar o relógio e o aviso do cache', immediate: true })
     await medir($, false)
     // Um tique por minuto faz o relógio do cache andar e dispara o aviso dos 5 minutos.
     $.clock.every(60_000, () => {
       void (async () => {
         await update($, tique, n => n + 1)
         const l = await read($, leitura)
-        if (!l || l.fimDoTurno === 0) return
+        if (!l || l.fimDoTurno === 0 || !(await read($, cacheLigado))) return
         const resta = CACHE_MS - ((await $.clock.now()) - l.fimDoTurno)
         if (resta > 0 && resta <= 5 * 60_000 && !avisou) {
           avisou = true
@@ -51,6 +55,16 @@ export const register: Register = on => {
       })()
     })
     return r
+  })
+
+  on('command.run', { command: 'sem-cache' }, async $ => {
+    await update($, cacheLigado, () => false)
+    return { text: 'Relógio e aviso do cache desligados nesta conversa. /com-cache religa.' }
+  })
+
+  on('command.run', { command: 'com-cache' }, async $ => {
+    await update($, cacheLigado, () => true)
+    return { text: 'Relógio e aviso do cache religados.' }
   })
 
   on('turn.complete', async ($, e, next) => {
@@ -72,7 +86,7 @@ export const register: Register = on => {
     const corContexto = l.percent >= 80 ? 'red' : l.percent >= 60 ? 'yellow' : 'green'
 
     let cache = null
-    if (l.fimDoTurno > 0 && !e.props.isWorking) {
+    if (l.fimDoTurno > 0 && !e.props.isWorking && (await read($, cacheLigado))) {
       const min = Math.ceil((CACHE_MS - ((await $.clock.now()) - l.fimDoTurno)) / 60_000)
       cache =
         min > 0 ? (

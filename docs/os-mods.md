@@ -80,6 +80,8 @@ Uma faixa acima do campo de texto:
   graça (está em cache). Parado tempo demais, o cache esfria e o próximo pedido paga tudo. O mod conta
   1 hora depois da última resposta (`CACHE_MS`, no começo do arquivo; confira o tempo do seu plano) e
   avisa 5 minutos antes.
+- **Desligar o cache:** `/sem-cache` esconde o relógio e o aviso só na conversa aberta; `/com-cache`
+  traz de volta. Conversa nova começa sempre ligada.
 
 ## proximos-passos
 

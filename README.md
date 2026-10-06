@@ -15,7 +15,7 @@ Você não precisa programar. Abra o Claude Code dentro desta pasta e peça em p
 | **pasta-certa** | Avisa quando o pedido fala de um cliente e a conversa está na pasta de outro | — |
 | **conflito-de-edicao** | Avisa antes de editar um arquivo que outra conversa (ou você) mexeu há pouco | — |
 | **painel-de-obra** | Painel ao lado com o que o Claude está fazendo, ao vivo | `/obra` |
-| **medidor-de-caixa** | Faixa com o custo da conversa, o contexto usado e quando o cache esfria | — |
+| **medidor-de-caixa** | Faixa com o custo da conversa, o contexto usado e quando o cache esfria | `/sem-cache` · `/com-cache` |
 | **proximos-passos** | 3 botões com os próximos pedidos depois de cada resposta | `/passos` |
 | **passar-o-bastao** | Resumo da conversa para continuar numa conversa nova, sem perder nada | `/bastao` |
 | **modo-gravacao** | Borra e-mail, telefone, CPF, chaves e nomes da sua lista na tela | `/gravar` |

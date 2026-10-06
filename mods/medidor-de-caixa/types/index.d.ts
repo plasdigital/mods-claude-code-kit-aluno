@@ -9,6 +9,6 @@ export type Leitura = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'medidor-de-caixa': { leitura: Leitura | null; tique: number }
+    'medidor-de-caixa': { leitura: Leitura | null; tique: number; cacheLigado: boolean }
   }
 }
