@@ -5,6 +5,9 @@ import type { Leitura } from '../types'
 
 const leitura = atom({ plugin: 'medidor-de-caixa', key: 'leitura' } as const, null)
 const tique = atom({ plugin: 'medidor-de-caixa', key: 'tique' } as const, 0)
+// Só o contexto na faixa (sem custo, último pedido nem cache). false traz a versão completa, a da aula.
+const SO_CONTEXTO = false
+
 // /sem-cache desliga o relógio e o aviso do cache nesta conversa; /com-cache religa.
 const cacheLigado = atom({ plugin: 'medidor-de-caixa', key: 'cacheLigado' } as const, true)
 
@@ -38,15 +41,15 @@ export const register: Register = on => {
 
   on('session.start', async ($, e, next) => {
     const r = await next(e)
-    await $.command.register({ name: 'sem-cache', description: 'Esconde o relógio e o aviso do cache nesta conversa', immediate: true })
-    await $.command.register({ name: 'com-cache', description: 'Volta a mostrar o relógio e o aviso do cache', immediate: true })
+    if (!SO_CONTEXTO) await $.command.register({ name: 'sem-cache', description: 'Esconde o relógio e o aviso do cache nesta conversa', immediate: true })
+    if (!SO_CONTEXTO) await $.command.register({ name: 'com-cache', description: 'Volta a mostrar o relógio e o aviso do cache', immediate: true })
     await medir($, false)
     // Um tique por minuto faz o relógio do cache andar e dispara o aviso dos 5 minutos.
     $.clock.every(60_000, () => {
       void (async () => {
         await update($, tique, n => n + 1)
         const l = await read($, leitura)
-        if (!l || l.fimDoTurno === 0 || !(await read($, cacheLigado))) return
+        if (SO_CONTEXTO || !l || l.fimDoTurno === 0 || !(await read($, cacheLigado))) return
         const resta = CACHE_MS - ((await $.clock.now()) - l.fimDoTurno)
         if (resta > 0 && resta <= 5 * 60_000 && !avisou) {
           avisou = true
@@ -84,6 +87,21 @@ export const register: Register = on => {
 
     const { Box, Text } = $.ui.resolve(e)
     const corContexto = l.percent >= 80 ? 'red' : l.percent >= 60 ? 'yellow' : 'green'
+    const contexto = (
+      <Text>
+        <Text color={corContexto}>contexto {l.percent}%</Text>
+        <Text dimColor> ({mil(l.tokens)} de {mil(l.janela)})</Text>
+      </Text>
+    )
+
+    if (SO_CONTEXTO) {
+      return (
+        <Box flexDirection="column">
+          <Text wrap="truncate">{contexto}</Text>
+          {abaixo}
+        </Box>
+      )
+    }
 
     let cache = null
     if (l.fimDoTurno > 0 && !e.props.isWorking && (await read($, cacheLigado))) {
@@ -101,8 +119,7 @@ export const register: Register = on => {
         <Text wrap="truncate">
           <Text bold>💰 {dolar(l.usd)}</Text>
           <Text dimColor> nesta conversa (preço de API)  ·  último pedido +{dolar(l.ultimoPedido)}  ·  </Text>
-          <Text color={corContexto}>contexto {l.percent}%</Text>
-          <Text dimColor> ({mil(l.tokens)} de {mil(l.janela)})</Text>
+          {contexto}
           {cache}
         </Text>
         {abaixo}

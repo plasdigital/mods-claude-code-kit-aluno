@@ -5,6 +5,12 @@ import type { ItemDeObra } from '../types'
 
 const PAINEL = 'obra'
 const itens = atom({ plugin: 'painel-de-obra', key: 'itens' } as const, [])
+// Na casa o painel só abre com /obra (o usuário não quer ele pulando na tela); true é a versão da aula,
+// que abre sozinho na primeira ação.
+const ABRIR_SOZINHO = true
+
+// Ligado: o painel aparece. /obra troca; conversa nova começa como ABRIR_SOZINHO manda.
+const pediu = atom({ plugin: 'painel-de-obra', key: 'pediu' } as const, ABRIR_SOZINHO)
 
 const nomeDoArquivo = (p: unknown) => String(p ?? '').replace(/\\/g, '/').split('/').pop() || '?'
 const curto = (t: unknown, n = 60) => {
@@ -42,13 +48,22 @@ const descrever = (tool: string, i: Record<string, unknown>) => {
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'obra', description: 'Abre o painel do que o Claude está fazendo' })
+    await $.command.register({ name: 'obra', description: 'Liga e desliga o painel do que o Claude está fazendo' })
+    // Roda também quando o mod recarrega: fecha o painel nas conversas paradas, sem esperar uma ação.
+    if (!(await read($, pediu))) await $.ui.close({ id: PAINEL }).catch(() => {})
     return next(e)
   })
 
+  // /obra é liga-desliga: abre se está fechado, fecha e para de abrir se está aberto.
   on('command.run', { command: 'obra' }, async $ => {
-    await $.ui.open({ id: PAINEL, title: 'Obra' })
-    return { text: 'Painel de obra aberto.' }
+    const ligar = !(await read($, pediu))
+    await update($, pediu, () => ligar)
+    if (ligar) {
+      await $.ui.open({ id: PAINEL, title: 'Obra' })
+      return { text: 'Painel de obra ligado. /obra de novo desliga.' }
+    }
+    await $.ui.close({ id: PAINEL }).catch(() => {})
+    return { text: 'Painel de obra desligado nesta conversa.' }
   })
 
   // Cada pedido abre um bloco novo no painel.
@@ -71,7 +86,8 @@ export const register: Register = on => {
       estado: 'rodando',
     }
     await update($, itens, lista => [...lista, item].slice(-120))
-    void $.ui.open({ id: PAINEL, title: 'Obra' })
+    if (!(await read($, pediu))) void $.ui.close({ id: PAINEL }).catch(() => {})
+    else if (ABRIR_SOZINHO) void $.ui.open({ id: PAINEL, title: 'Obra' })
 
     const r = await next(e)
     const falhou = r.deny !== undefined || r.isError === true

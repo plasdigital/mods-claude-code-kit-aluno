@@ -40,4 +40,4 @@ O que cada um faz em detalhe, em que momento entra e se gasta uso: [docs/os-mods
 
 > ⚠️ Mods são recurso em teste (early access) do Claude Code: a forma de escrever pode mudar entre
 > versões. Os mods foram feitos e testados no Windows; no Mac a maioria funciona, e os pontos que
-> dependem do Windows estão listados no [CLAUDE.md](CLAUDE.md).
+> dependem do Windows estão listados no [AGENTS.md](AGENTS.md).

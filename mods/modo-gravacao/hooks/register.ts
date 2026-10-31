@@ -14,6 +14,14 @@ const ligado = atom({ plugin: 'modo-gravacao', key: 'ligado' } as const, false)
 const termos = atom({ plugin: 'modo-gravacao', key: 'termos' } as const, [])
 
 const PADROES: RegExp[] = [
+  // Dinheiro vem antes dos documentos, para o valor inteiro sumir de uma vez.
+  /(?:R\$|US\$|U\$|€|\$|\b(?:BRL|USD|EUR)\b)\s?\d+(?:[.,]\d+)*(?:\s?(?:mil|milh(?:ão|ões)|mi|bi|k)\b)?/gi, // R$ 1.500,00 · R$ 50 mil · US$ 200
+  /\b\d+(?:[.,]\d+)*\s?(?:mil\s)?(?:reais|real|d[oó]lar(?:es)?)\b/gi, // 1500 reais · 2 mil reais
+  /\b\d{1,3}(?:\.\d{3})*,\d{2}\b(?!\s?%)/g, // 1.234,56 sem símbolo (não pega porcentagem)
+  /(?<=\b(?:valor|pre[çc]o|mensalidade|fatura|faturamento|saldo|honor[aá]rio|or[çc]amento|parcela|custo|pagamento|sal[aá]rio|receita|ticket|price|amount)\w*[^\d\n]{0,12})\d+(?:[.,]\d+)*/gi, // valor_nota: 1500 · mensalidade 800
+  // Tamanho do negócio e aperto: some o número ("▒▒ clientes") e a palavra que mostra dívida.
+  /\b\d+(?=\s+(?:clientes?|contratos?|notas?(?:\s+fiscais?)?|NFS-?e|alunos?|leads?|boletos?|contas?|faturas?)\b)/gi, // 5 clientes · 12 notas
+  /\b(?:renegocia\p{L}*|d[ií]vidas?|inadimpl\p{L}*|serasa|protest(?:o|ad[ao]s?)|negativad[ao]s?|empr[ée]stimos?|financiamentos?|em\s+atraso|atrasad[ao]s?)\b/giu, // boleto renegociação
   /\b(?:senha|password|token|secret|api[_-]?key|apikey)\b\s*[:=]\s*\S+/gi, // senha=..., token: ...
   /\beyJ[\w-]+\.[\w-]+\.[\w-]+/g, // JWT
   /\b(?:sk|pk|rk|ghp|gho|github_pat|xox[abp]|AKIA|AIza|EAA)[\w-]{10,}/g, // chaves de API conhecidas
@@ -24,6 +32,17 @@ const PADROES: RegExp[] = [
   /\b\d{12,13}\b/g, // telefone colado (5521999998888)
   /\b[A-Za-z0-9_]{32,}\b/g, // qualquer sequência longa parecida com token
 ]
+
+// A tarja só pega o que já foi escrito; isto faz o Claude nem escrever. Vai junto de cada mensagem enquanto grava.
+const REGRAS_GRAVACAO = `MODO GRAVAÇÃO LIGADO: o usuário está gravando uma aula e esta tela vai aparecer no vídeo. Até ele desligar (/gravar), toda resposta segue isto:
+- Nenhum valor em dinheiro, nem total, nem parcela, nem saldo, nem porcentagem de dívida. Onde o valor faria falta, escreva "valor" ou "▒▒▒▒" (ex.: "Luz — vence 11/11 — ▒▒▒▒").
+- Nenhuma quantidade que mostre o tamanho do negócio: quantos clientes, contratos, notas fiscais, alunos, leads, contas ou boletos. Escreva "alguns clientes", "as notas do mês", "algumas contas". Ex.: em vez de "emiti a nota dos seus 5 clientes", "emiti as notas desses clientes".
+- Contas pessoais pelo nome genérico, que pode levar o banco ou a empresa: "boleto Santander", "cartão Nubank", "luz", "internet", "aluguel", "plano de saúde", "imposto da empresa". Nada que mostre aperto: não escreva dívida, acordo, renegociação, empréstimo, financiamento, atraso, "suspenso por falta de pagamento", cobrança, protesto, Serasa. Ex.: "boleto renegociação Santander" vira "boleto Santander". Se algo está atrasado, diga só "precisa de atenção" ou "confira se foi pago".
+- Nota fiscal: pode dizer que emitiu, conferiu ou falta emitir. Sem número da nota, valor, tomador, CNPJ ou descrição do serviço contratado.
+- Clientes: só pelo ramo ("um cliente de farmácia", "um cliente de hotelaria"), sem nome de empresa ou pessoa, sem faturamento, contrato, fatura, saldo de anúncio ou problema interno.
+- Tabela ou lista na resposta: mostre só o necessário para a aula (2 ou 3 linhas de exemplo), nunca a lista inteira de clientes, notas ou contas.
+- Nada de número de conta, final de cartão, código de barras, chave Pix, e-mail, telefone, CPF/CNPJ, endereço ou nome de pessoa.
+- Datas de vencimento e a lógica do sistema podem aparecer: é o que a aula ensina. Leia os dados normalmente; o cuidado é só no que vai para a tela.`
 
 const escapar = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -101,9 +120,15 @@ export const register: Register = on => {
     mostrarStatus($, agora)
     return {
       text: agora
-        ? 'Modo gravação LIGADO: e-mails, telefones, CPF/CNPJ, chaves e os termos da lista aparecem borrados na tela. O Claude continua lendo tudo normalmente.'
+        ? 'Modo gravação LIGADO: valores em dinheiro, e-mails, telefones, CPF/CNPJ, chaves e os termos da lista aparecem borrados na tela, e o Claude responde no genérico (contas pelo nome genérico, clientes pelo ramo, sem valores nem quantidades). Ele continua lendo tudo normalmente.'
         : 'Modo gravação DESLIGADO.',
+      context: [agora ? REGRAS_GRAVACAO : 'MODO GRAVAÇÃO DESLIGADO: as regras de tela da gravação não valem mais.'],
     }
+  })
+
+  on('prompt.submit', async ($, e, next) => {
+    if (!(await read($, ligado))) return next(e)
+    return next({ ...e, context: [...(e.context ?? []), REGRAS_GRAVACAO] })
   })
 
   on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {

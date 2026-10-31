@@ -7,6 +7,6 @@ export type ItemDeObra = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'painel-de-obra': { itens: ItemDeObra[] }
+    'painel-de-obra': { itens: ItemDeObra[]; pediu: boolean }
   }
 }

@@ -64,7 +64,7 @@ Também pega mudança feita por você no editor ou por um script.
 
 Um painel ao lado, que abre sozinho na primeira ação, lista ao vivo: `👀 lendo…`, `✏️ editando…`,
 `⚙️ rodando…`, com ⏳ / ✅ / ❌ e um contador no topo (ações, arquivos mexidos, erros). Cada pedido seu
-abre um bloco novo. `/obra` reabre o painel.
+abre um bloco novo. `/obra` liga e desliga: desligado, o painel fecha e não abre mais nesta conversa.
 
 ## medidor-de-caixa
 
